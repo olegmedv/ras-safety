@@ -51,7 +51,53 @@ There is no custom backend server. The React app talks to Supabase directly thro
 
 ## Database
 
-![ERD](docs/erd.png)
+Entity-Relationship Diagram (also available as an image: [docs/erd.png](docs/erd.png)):
+
+```mermaid
+erDiagram
+    AUTH_USERS ||--|| PROFILES : "has profile"
+    PROFILES ||--o{ SUBMISSIONS : "submits"
+    SITES ||--o{ SUBMISSIONS : "for site"
+    SUBMISSIONS ||--o{ SUBMISSION_PHOTOS : "has"
+
+    AUTH_USERS {
+        uuid id PK "managed by Supabase Auth"
+        text email
+    }
+    PROFILES {
+        uuid id PK, FK
+        text full_name
+        text role "framer | admin"
+        timestamptz created_at
+    }
+    SITES {
+        bigint id PK
+        text name UK
+        timestamptz created_at
+    }
+    SUBMISSIONS {
+        uuid id PK
+        uuid user_id FK
+        bigint site_id FK
+        date work_date "unique with user_id, site_id"
+        boolean hard_hat
+        boolean hi_vis_vest
+        boolean safety_boots
+        boolean eye_protection
+        boolean fall_protection
+        boolean ladders_scaffolding_inspected
+        boolean tools_cords_ok
+        boolean hazards_identified
+        text notes
+        timestamptz created_at
+    }
+    SUBMISSION_PHOTOS {
+        uuid id PK
+        uuid submission_id FK
+        text storage_path "path in bucket safety-photos"
+        timestamptz created_at
+    }
+```
 
 - `profiles`: one-to-one with Supabase `auth.users`; stores name and role
 - `sites`: job sites
